@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"log"
+	"os"
 )
 
 var (
@@ -13,12 +14,12 @@ var (
 	err error
 )
 
-func Initialize() {
+func Initialize() *System {
 	db, err = gorm.Open("sqlite3", "./gorm.db")
 	if err != nil {
 		fmt.Println(err)
 	}
-	defer db.Close()
+	//defer db.Close()
 
 	db.AutoMigrate(&Account{})
 	db.AutoMigrate(&Transaction{})
@@ -39,12 +40,9 @@ func Initialize() {
 	}*/
 
 
-
-	tables := []string{}
-	db.Select(&tables, "SHOW TABLES")
-	fmt.Println(tables)
-
-	system := &System{}
+	system := &System{
+		db:db,
+	}
 	/*account := system.CreateAccount("knolle")
 	fmt.Printf("ACCOUNT: %v\n", account)*/
 
@@ -64,7 +62,16 @@ func Initialize() {
 	}
 	//fmt.Printf("I AHVE: %v\n", accounts)
 
-	runServer(system)
+	return system
 }
 
-//db, _ = gorm.Open("mysql", "user:pass@tcp(127.0.0.1:3306)/samples?charset=utf8&parseTime=True&loc=Local")
+func deleteDatabase() error {
+	dir, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	fmt.Println(dir)
+	log.Printf("Deleting database from %v", dir)
+	return os.Remove("./gorm.db")
+
+}

@@ -2,18 +2,19 @@ package salary
 
 import (
 	"fmt"
+	"github.com/jinzhu/gorm"
 	"log"
 	"math/rand"
 	"time"
 )
 
 type System struct {
-
+	db *gorm.DB
 }
 
 func (s *System) ListAccounts(sink chan<- ListAccount) {
 	defer close(sink)
-	rows, err := db.Table("account a").Select("a.id, a.name, sum(t.amount) as amount").Joins("left join 'transaction' t on t.account = a.id").Group("a.id").Rows()
+	rows, err := s.db.Table("account a").Select("a.id, a.name, sum(t.amount) as amount").Joins("left join 'transaction' t on t.account = a.id").Group("a.id").Rows()
 	if err != nil {
 		log.Printf("Recieved error while reading data: %v\n", err)
 		return
@@ -32,12 +33,12 @@ func (s *System) CreateAccount(name string) Account {
 		Name:name,
 	}
 
-	db.Table("account").Create(&account)
+	s.db.Table("account").Create(&account)
 	return account
 }
 
 func (s *System) GetAccount(id int) (account Account, err error) {
-	err = db.Where("id = ?", id).First(&account).Error
+	err = s.db.Where("id = ?", id).First(&account).Error
 	return
 }
 
@@ -49,7 +50,7 @@ func (s *System) CreateTransaction(account *Account, description string, amount 
 		Date:        time.Now(),
 	}
 
-	db.Create(&transaction)
+	s.db.Create(&transaction)
 	return
 }
 
@@ -61,10 +62,10 @@ func (s *System) CreateRandomTransaction(account *Account) (transaction Transact
 		Date:        time.Now(),
 	}
 
-	db.Create(&transaction)
+	s.db.Create(&transaction)
 	return
 }
 
 func (s *System) DeleteTransaction(id int) {
-	db.Where("id = ?", id).Delete(Transaction{})
+	s.db.Where("id = ?", id).Delete(Transaction{})
 }

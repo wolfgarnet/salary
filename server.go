@@ -8,12 +8,12 @@ import (
 	"strconv"
 )
 
-func runServer(system *System) {
+func RunServer(system *System) {
 	server := Server{system}
 	router := mux.NewRouter()
 
-	router.HandleFunc("/accounts", server.accounts)
-	router.HandleFunc("/transactions/{id}", server.transaction)
+	router.HandleFunc("/accounts", server.Accounts)
+	router.HandleFunc("/transactions/{id}", server.Transaction)
 	router.HandleFunc("/accounts/{id}/transactions", server.accountTransaction)
 	//router.HandleFunc("/shutdown", shutdown)
 
@@ -29,7 +29,7 @@ type Server struct {
 	System *System
 }
 
-func (s Server) transaction(w http.ResponseWriter, r *http.Request) {
+func (s Server) Transaction(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "DELETE":
 		vars := mux.Vars(r)
@@ -117,7 +117,7 @@ func (s Server) accountTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s Server) accounts(w http.ResponseWriter, r *http.Request) {
+func (s Server) Accounts(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
 		log.Printf("Creating account")
