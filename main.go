@@ -44,7 +44,7 @@ func Initialize() {
 	db.Select(&tables, "SHOW TABLES")
 	fmt.Println(tables)
 
-	system := System{}
+	system := &System{}
 	/*account := system.CreateAccount("knolle")
 	fmt.Printf("ACCOUNT: %v\n", account)*/
 
@@ -63,6 +63,8 @@ func Initialize() {
 		fmt.Printf("Account: %+v\n", account)
 	}
 	//fmt.Printf("I AHVE: %v\n", accounts)
+
+	runServer(system)
 }
 
 //db, _ = gorm.Open("mysql", "user:pass@tcp(127.0.0.1:3306)/samples?charset=utf8&parseTime=True&loc=Local")
