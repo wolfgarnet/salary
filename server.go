@@ -8,14 +8,14 @@ import (
 	"strconv"
 )
 
+// RunServer runs the http server
 func RunServer(system *System) {
 	server := Server{system}
 	router := mux.NewRouter()
 
 	router.HandleFunc("/accounts", server.Accounts)
 	router.HandleFunc("/transactions/{id}", server.Transaction)
-	router.HandleFunc("/accounts/{id}/transactions", server.accountTransaction)
-	//router.HandleFunc("/shutdown", shutdown)
+	router.HandleFunc("/accounts/{id}/transactions", server.AccountTransaction)
 
 	log.Printf("Running http server")
 	err := http.ListenAndServe(":6543", router)
@@ -25,10 +25,13 @@ func RunServer(system *System) {
 	log.Printf("http server closed down")
 }
 
+// Server implements the http handlers
 type Server struct {
 	System *System
 }
 
+// Transaction implements the functionality for handling the transaction endpoint.
+// DELETE deletes a transaction.
 func (s Server) Transaction(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "DELETE":
@@ -53,7 +56,10 @@ func (s Server) Transaction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (s Server) accountTransaction(w http.ResponseWriter, r *http.Request) {
+// AccountTransaction implements the functionality for handling the account transaction endpoint.
+// POST creates a transaction
+// GET retrieves a transaction
+func (s Server) AccountTransaction(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	idString, hasID := vars["id"]
 	if !hasID {
@@ -117,6 +123,9 @@ func (s Server) accountTransaction(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// Accounts implements the functionality for handling the accounts endpoint.
+// POST creates a new account
+// GET retrieves an account
 func (s Server) Accounts(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
