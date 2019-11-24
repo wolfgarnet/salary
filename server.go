@@ -38,15 +38,18 @@ func (s Server) Transaction(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		idString, hasID := vars["id"]
 		if !hasID {
+			log.Printf("Unable to delete transaction, no id")
 			http.Error(w, "Account id not provided", http.StatusNotAcceptable)
 			return
 		}
 		id, err := strconv.Atoi(idString)
 		if err != nil {
+			log.Printf("Unable to delete transaction: %v", err)
 			http.Error(w, err.Error(), http.StatusNotAcceptable)
 			return
 		}
 
+		log.Printf("Deleting transaction %v", id)
 		s.System.DeleteTransaction(id)
 
 		w.WriteHeader(http.StatusOK)
@@ -60,20 +63,22 @@ func (s Server) Transaction(w http.ResponseWriter, r *http.Request) {
 // POST creates a transaction
 // GET retrieves a transaction
 func (s Server) AccountTransaction(w http.ResponseWriter, r *http.Request) {
-	log.Printf("Account transactions")
 	vars := mux.Vars(r)
 	idString, hasID := vars["id"]
 	if !hasID {
+		log.Printf("No id provided")
 		http.Error(w, "Account id not provided", http.StatusNotAcceptable)
 		return
 	}
 	id, err := strconv.Atoi(idString)
 	if err != nil {
+		log.Printf("Not a valid integer")
 		http.Error(w, err.Error(), http.StatusNotAcceptable)
 		return
 	}
 	account, err := s.System.GetAccount(id)
 	if err != nil {
+		log.Printf("No such account: %v", id)
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
 	}
@@ -90,6 +95,7 @@ func (s Server) AccountTransaction(w http.ResponseWriter, r *http.Request) {
 		decoder.DisallowUnknownFields()
 		err = decoder.Decode(&data)
 		if err != nil {
+			log.Printf("Unable to create account: %v", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -98,10 +104,12 @@ func (s Server) AccountTransaction(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(transaction)
 		if err != nil {
+			log.Printf("Unable to create account: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		log.Printf("Creating transaction for %v", account.Name)
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
@@ -111,10 +119,12 @@ func (s Server) AccountTransaction(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(account.Transactions())
 		if err != nil {
+			log.Printf("Unable to get account: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		log.Printf("Getting transactions for %v", account.Name)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
@@ -138,6 +148,7 @@ func (s Server) Accounts(w http.ResponseWriter, r *http.Request) {
 		decoder.DisallowUnknownFields()
 		err := decoder.Decode(&data)
 		if err != nil {
+			log.Printf("Unable to create account: %v", err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
@@ -145,10 +156,12 @@ func (s Server) Accounts(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(account)
 		if err != nil {
+			log.Printf("Unable to create account: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		log.Printf("Account created: %v", account.Name)
 		w.WriteHeader(http.StatusCreated)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
@@ -163,10 +176,12 @@ func (s Server) Accounts(w http.ResponseWriter, r *http.Request) {
 
 		js, err := json.Marshal(accounts)
 		if err != nil {
+			log.Printf("Unable to get account: %v", err)
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
+		log.Printf("Accounts retrieved")
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(js)
