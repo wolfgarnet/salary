@@ -60,6 +60,7 @@ func (s Server) Transaction(w http.ResponseWriter, r *http.Request) {
 // POST creates a transaction
 // GET retrieves a transaction
 func (s Server) AccountTransaction(w http.ResponseWriter, r *http.Request) {
+	log.Printf("Account transactions")
 	vars := mux.Vars(r)
 	idString, hasID := vars["id"]
 	if !hasID {

@@ -14,6 +14,7 @@ var (
 	err error
 )
 
+// Initialize initializes the system
 func Initialize() *System {
 	db, err = gorm.Open("sqlite3", "./gorm.db")
 	if err != nil {
@@ -29,6 +30,7 @@ func Initialize() *System {
 	return system
 }
 
+// deleteDatabase deletes the current database and is used for testing purposes.
 func deleteDatabase() error {
 	dir, err := os.Getwd()
 	if err != nil {
